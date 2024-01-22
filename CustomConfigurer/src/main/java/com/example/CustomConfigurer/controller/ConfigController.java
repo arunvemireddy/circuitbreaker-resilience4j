@@ -1,4 +1,4 @@
-package com.example.CustomConfigurer;
+package com.example.CustomConfigurer.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -12,19 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
  * @author arun vemireddy
  */
 @RestController
-@RequestMapping("/")
+@RequestMapping(path = "/eureka")
 public class ConfigController {
 
     @Autowired
     private Environment environment;
 
-    @Autowired
-    private DBConfigurer dbConfigurer;
-
-    @GetMapping("/getconfig")
-    public ResponseEntity<String> getConfig(){
-        String details=dbConfigurer.getPort()+""+dbConfigurer.getApplicationname()+""+dbConfigurer.getNum()+""+dbConfigurer.getNum2();
-        return new ResponseEntity<>(details, HttpStatus.OK);
+    @GetMapping
+    public ResponseEntity<?>  eureka(){
+        return new ResponseEntity<>("Eureka Server is Up",HttpStatus.OK);
     }
 
     @RequestMapping(path = "/env")

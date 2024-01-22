@@ -1,0 +1,41 @@
+server:
+  port: 8762
+
+spring:
+  application:
+    name: "custom-configure-eureka-server"
+
+management:
+  info:
+    env:
+      enabled: true
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "*"
+    health:
+      show-details: always
+
+info:
+  application:
+    name: "custom-configure-eureka-server"
+    server:
+      port: 8762
+  eureka:
+    clients:
+      client1: "custom-configure-one"
+      client2: "custom-configure-two"
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    serviceUrl:
+      defaultZone: http://localhost:8762/eureka
+  dashboard:
+    enabled: true
+  server:
+    enable-self-preservation: false
+
+

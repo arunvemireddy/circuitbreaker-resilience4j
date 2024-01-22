@@ -1,47 +1,78 @@
 package com.example.CustomConfigurerOne.Controller;
 
+
+
+import com.example.CustomConfigurerOne.constants.ConfigOneConstants;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author arun vemireddy
  */
 @RestController
-@RequestMapping(path = "/one")
+@RequestMapping(path = "/client-one")
+@Slf4j
 public class CCOController {
 
     @Autowired
     private RestTemplate restTemplate;
 
-    @GetMapping(path = "/CCOendpoint1")
-    public ResponseEntity<?> CCTendpoint1(){
-        return new ResponseEntity<>("CCOEP1", HttpStatus.OK);
+
+    private static final String RESILIENCE4J_INSTANCE_NAME = "example";
+
+    @GetMapping(path = "/osConfig")
+    public ResponseEntity<Map<String,String>> osConfig(){
+        Map<String,String> osVersions = new HashMap<>();
+        osVersions.put("Windows","11");
+        osVersions.put("Linux","Ubuntu");
+        osVersions.put("macOs","Sonoma");
+        return ResponseEntity.ok(osVersions);
     }
 
-    @GetMapping(path = "/CCOendpoint2")
-    public ResponseEntity<?> CCTendpoint2(){
-        return new ResponseEntity<>("CCOEP2", HttpStatus.OK);
+    @GetMapping(path = "/pcConfig")
+    @CircuitBreaker(name = "pc",fallbackMethod = "pcFail")
+    public ResponseEntity<?> pcConfig(){
+        return new ResponseEntity<>(restTemplate.getForObject(ConfigOneConstants.config_two_base_url +"pcConfig", Map.class), HttpStatus.OK);
     }
 
-    @GetMapping(path = "/CCOendpoint3ms")
-    @HystrixCommand(fallbackMethod = "CCTendpoint3msh")
-    public ResponseEntity<?> CCTendpoint3ms(){
-        List<String> list = new ArrayList();
-        list=restTemplate.getForObject("http://secondmicroservice/two/CCTendpoint3", List.class);
-        return new ResponseEntity<>(list, HttpStatus.OK);
+    public ResponseEntity<?> pcFail(Throwable throwable){
+        log.info("Fallback method pcFail() called");
+        return new ResponseEntity<>("PC service is down. Try after sometime", HttpStatus.OK);
     }
 
-    public ResponseEntity<?> CCTendpoint3msh(){
+    @GetMapping(path = "/mobileConfig")
+    @CircuitBreaker(name = "mobile",fallbackMethod = "mobileFail")
+    public ResponseEntity<?> mobileConfig(){
+        return new ResponseEntity<>(restTemplate.getForObject(ConfigOneConstants.config_two_base_url +"mobileConfig", Map.class), HttpStatus.OK);
+    }
 
-        return new ResponseEntity<>("MS2Down", HttpStatus.OK);
+    public ResponseEntity<?> mobileFail(Throwable throwable){
+        return ResponseEntity.ok("Mobile service is down. Try after sometime");
+    }
+
+    @GetMapping(path = "/dbConfig")
+    @CircuitBreaker(name = "db",fallbackMethod = "dbFail")
+    public ResponseEntity<?> dbConfig(){
+        return new ResponseEntity<>(restTemplate.getForObject(ConfigOneConstants.config_two_base_url +"dbConfig", Map.class), HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> dbFail(Throwable throwable){
+        return ResponseEntity.ok("DB service is down. Try after sometime");
     }
 }

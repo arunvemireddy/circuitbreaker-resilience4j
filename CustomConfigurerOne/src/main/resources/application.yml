@@ -1,0 +1,37 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: "custom-configure-client-one"
+  cloud:
+    circuit-breaker:
+      hystrix:
+        enabled: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8762/eureka/
+
+management:
+  info:
+    env:
+      enabled: true
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "*"
+    health:
+      show-details: always
+
+
+info:
+  application:
+    name: "custom-configure-client-one"
+    server:
+      port: 8762
+  eureka:
+    server: "custom-configure-eureka-server"
+
