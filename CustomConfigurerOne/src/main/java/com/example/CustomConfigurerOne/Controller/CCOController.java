@@ -3,11 +3,13 @@ package com.example.CustomConfigurerOne.Controller;
 
 
 import com.example.CustomConfigurerOne.constants.ConfigOneConstants;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.RetryConfig;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.Response;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +40,16 @@ public class CCOController {
 
     private static final String RESILIENCE4J_INSTANCE_NAME = "example";
 
+    @Bean
+    public RetryConfig pcConfigRetryConfig() {
+        return RetryConfig.custom()
+                .maxAttempts(3)  // Adjust as needed
+                .waitDuration(Duration.ofMillis(5000))  // Adjust as needed
+                .retryExceptions(IOException.class)  // Specify relevant exceptions
+                .build();
+    }
+
+
     @GetMapping(path = "/osConfig")
     public ResponseEntity<Map<String,String>> osConfig(){
         Map<String,String> osVersions = new HashMap<>();
@@ -47,6 +61,7 @@ public class CCOController {
 
     @GetMapping(path = "/pcConfig")
     @CircuitBreaker(name = "pc",fallbackMethod = "pcFail")
+    @Retry(name = "pcConfigRetryConfig")
     public ResponseEntity<?> pcConfig(){
         return new ResponseEntity<>(restTemplate.getForObject(ConfigOneConstants.config_two_base_url +"pcConfig", Map.class), HttpStatus.OK);
     }
