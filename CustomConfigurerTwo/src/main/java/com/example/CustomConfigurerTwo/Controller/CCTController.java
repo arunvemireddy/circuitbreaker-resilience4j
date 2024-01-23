@@ -30,23 +30,25 @@ public class CCTController {
         pcModels.put("Apple", "M2");
         return ResponseEntity.ok(pcModels);
     }
+
     @GetMapping(path = "/mobileConfig")
-    public ResponseEntity<?> mobileConfig(){
-        Map<String,String[]> mobileModel = new HashMap<>();
-        mobileModel.put(mobileConfig.brandOne,new String[]{"S6","S7","Galaxy"});
-        mobileModel.put(mobileConfig.brandTwo,new String[]{"K3","K4","K5"});
-        mobileModel.put(mobileConfig.brandThree,new String[]{"X","11","12"});
+    public ResponseEntity<?> mobileConfig() {
+        Map<String, String[]> mobileModel = new HashMap<>();
+        mobileModel.put(mobileConfig.brandOne, new String[]{"S6", "S7", "Galaxy"});
+        mobileModel.put(mobileConfig.brandTwo, new String[]{"K3", "K4", "K5"});
+        mobileModel.put(mobileConfig.brandThree, new String[]{"X", "11", "12"});
         return ResponseEntity.ok(mobileModel);
     }
+
     @GetMapping(path = "/dbConfig")
-    public ResponseEntity<?> dbConfig(){
-        Map<String,String> dbConfigurations = new HashMap<>();
-        dbConfigurations.put("name",dbConfig.dbName);
-        dbConfigurations.put("engine",dbConfig.dbEngine);
-        dbConfigurations.put("url",dbConfig.url);
-        dbConfigurations.put("username",dbConfig.username);
-        dbConfigurations.put("password",dbConfig.password);
-        dbConfigurations.put("driverClassName",dbConfig.driverClassName);
-        return new ResponseEntity<>(dbConfigurations,HttpStatus.OK);
+    public ResponseEntity<?> dbConfig() {
+        Map<String, String> dbConfigurations = new HashMap<>();
+        dbConfigurations.put("name", dbConfig.dbName);
+        dbConfigurations.put("engine", dbConfig.dbEngine);
+        dbConfigurations.put("url", dbConfig.url);
+        dbConfigurations.put("username", dbConfig.username);
+        dbConfigurations.put("password", dbConfig.password);
+        dbConfigurations.put("driverClassName", dbConfig.driverClassName);
+        return new ResponseEntity<>(dbConfigurations, HttpStatus.OK);
     }
 }
